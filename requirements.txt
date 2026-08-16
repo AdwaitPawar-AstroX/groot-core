@@ -1,0 +1,17 @@
+# Core loop dependencies (Linux)
+pyyaml
+requests
+sounddevice
+numpy
+
+# STT
+faster-whisper
+
+# Wake word
+openwakeword
+
+# TTS (local, free)
+piper-tts
+
+# Claude fallback
+anthropic

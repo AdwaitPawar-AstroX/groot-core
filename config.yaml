@@ -1,0 +1,40 @@
+# Groot core config
+# Change values here when you upgrade hardware or swap models/voices —
+# nothing in the code should ever hardcode a model name or device.
+
+llm:
+  provider: "ollama"              # ollama | anthropic
+  local_model: "qwen3:14b"        # swap when you upgrade GPU (e.g. qwen3:32b)
+  ollama_url: "http://localhost:11434"
+  context_window: 8192            # bump when you upgrade hardware
+  think: false                    # disable Qwen3 reasoning preamble for speed
+
+  fallback:
+    provider: "anthropic"
+    model: "claude-haiku-4-5-20251001"
+    escalate_model: "claude-opus-4-8"   # used for flagged hard/safety tasks
+
+wake_word:
+  engine: "openwakeword"
+  keyword: "hey_jarvis"           # placeholder model until a custom "groot" model is trained
+  threshold: 0.5
+
+stt:
+  engine: "faster-whisper"
+  model_size: "small.en"          # tiny.en/base.en/small.en/medium.en — bigger = slower, more accurate
+  device: "cuda"                  # cuda | cpu
+
+tts:
+  engine: "piper"
+  voice: "en_US-lessac-medium"    # local Piper voice; swap for ElevenLabs later if desired
+  sample_rate: 22050
+
+paths:
+  system_prompt: "system_prompt.md"
+  memory_store: "./data/memory.sqlite3"
+  logs: "./data/logs/"
+
+audio:
+  input_device: null               # null = system default; set index if multiple mics
+  output_device: null
+  sample_rate: 16000
