@@ -64,7 +64,71 @@ Edit `SERVER_URL` in `pc_agent/agent.py` first if the agent is running on a
 *different* machine than the server — point it at the server's actual IP
 (or Tailscale hostname once that's set up).
 
-## Testing it end-to-end (text only for now)
+## One-time setup: your API key
+
+Copy `.env.example` to `.env` and fill in your real key:
+```bash
+cp .env.example .env
+# edit .env, replace the placeholder with your real ANTHROPIC_API_KEY
+```
+This is loaded automatically now — no more manually setting
+`$env:ANTHROPIC_API_KEY` in every new terminal. `.env` is gitignored, so
+your real key never gets committed.
+
+## Starting everything (organized)
+
+Instead of manually opening 3 terminals and typing commands in each,
+run one script that launches all three in clearly labeled windows:
+
+```powershell
+.\scripts\start_all.ps1
+```
+
+This opens **Groot - SERVER**, **Groot - PC AGENT**, and **Groot - VOICE**
+as separate titled windows, in the right startup order. If you only need
+one piece, run its script directly: `.\scripts\start_server.ps1`,
+`.\scripts\start_pc_agent.ps1`, or `.\scripts\start_voice_client.ps1`.
+
+**Remember:** if you restart the server, the PC agent needs a moment to
+auto-reconnect (it retries every 3s) — no need to manually restart it
+anymore, just give it a few seconds after the server comes back up.
+
+## Backing this up (so a mistake never costs you the whole project)
+
+```bash
+git init                      # only if not already done
+git add -A
+git commit -m "Groot: working voice + PC agent + server, milestone reached"
+```
+
+Push to a **private** GitHub repo so you have an off-machine copy:
+```bash
+git remote add origin https://github.com/<you>/groot-core.git
+git branch -M main
+git push -u origin main
+```
+
+From here on, commit whenever something works — `git commit -m "..."`
+after every real milestone (a new tool, a fix, a working feature) gives
+you a restore point. If something breaks later, `git log --oneline` shows
+your history and `git checkout <commit> -- <file>` recovers any single
+file without touching the rest.
+
+**What's NOT backed up by git (and shouldn't be):**
+- `.env` (your API key — keep this safe yourself, e.g. a password manager)
+- `venv/` (regenerate anytime with `pip install -r requirements.txt`)
+- `data/` (your actual conversation history — back this up separately if
+  you want to keep it; see below)
+
+**Backing up your conversation data separately:**
+`data/groot.sqlite3` holds your actual conversation history — this is
+personal data, not code, so it doesn't belong in a git repo (especially
+not a public one). Periodically copy it somewhere safe:
+```powershell
+Copy-Item data\groot.sqlite3 -Destination "$env:USERPROFILE\Documents\groot_backups\groot_$(Get-Date -Format yyyyMMdd_HHmm).sqlite3"
+```
+
+
 
 With the server and PC agent both running, in a third terminal:
 
@@ -78,7 +142,61 @@ Check the PC agent's terminal — you should see it receive and execute the
 `open_app` tool call. Check `curl http://localhost:8420/devices` to see
 what's currently connected/active.
 
-## Running the voice client
+## Starting everything (recommended — replaces manual 3-terminal setup)
+
+Instead of manually opening 3 PowerShell windows, activating the venv in
+each, and remembering the right command for each one:
+
+```powershell
+.\start_all.ps1
+```
+
+This launches the server, PC agent, and voice client each in their own
+window with the venv already activated. If you get a script-execution
+error the first time, run this once (matches the earlier venv-activation
+fix):
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+To restart everything cleanly after a code change: close all 3 windows
+and re-run `.\start_all.ps1`. The PC agent now auto-reconnects if the
+server restarts on its own, but a full clean restart is still the
+simplest way to guarantee nothing's stale.
+
+## Backing up your work (git)
+
+Do this now, and after any change that actually works — it's the
+difference between "reverting one bad edit" and "redoing an evening of
+debugging."
+
+**First-time setup:**
+```powershell
+git init
+git add -A
+git commit -m "Working voice loop + PC agent + Tailscale remote access"
+```
+
+**Push to GitHub for real off-machine backup** (create an empty private
+repo on GitHub first, e.g. `groot-core`):
+```powershell
+git remote add origin https://github.com/<you>/groot-core.git
+git branch -M main
+git push -u origin main
+```
+
+**After any future change that works**, commit it:
+```powershell
+git add -A
+git commit -m "describe what changed"
+git push
+```
+
+`.gitignore` already excludes `venv/`, `data/` (your local conversation
+history/session DB), and cache files — only your actual code and config
+get backed up, nothing sensitive or huge.
+
+## Running things individually
 
 Needs a real mic and speaker — run this on the PC that has them (usually
 the same machine as the server, since that's your current setup).

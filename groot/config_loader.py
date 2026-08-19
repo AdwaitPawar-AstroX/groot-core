@@ -6,9 +6,13 @@ so there's exactly one place that knows about the config file's path/shape.
 
 import yaml
 from pathlib import Path
+from dotenv import load_dotenv
 
 _CONFIG_PATH = Path(__file__).parent.parent / "config.yaml"
+_ENV_PATH = Path(__file__).parent.parent / ".env"
 _config = None
+
+load_dotenv(_ENV_PATH)  # loads ANTHROPIC_API_KEY etc. once, at import time
 
 
 def get_config() -> dict:

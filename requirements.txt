@@ -1,6 +1,7 @@
 pyyaml
 requests
 anthropic
+python-dotenv
 
 # Server
 fastapi
