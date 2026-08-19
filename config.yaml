@@ -2,12 +2,19 @@
 # Change values here when you upgrade hardware or swap models/voices —
 # nothing in the code should ever hardcode a model name or device.
 
+server_url: "http://localhost:8420"   # voice_client and any future client POST here.
+                                       # Use this PC's Tailscale IP instead if a client
+                                       # runs on a different machine than the server.
+
 llm:
   provider: "ollama"              # ollama | anthropic
-  local_model: "qwen3:14b"        # swap when you upgrade GPU (e.g. qwen3:32b)
+  local_model: "qwen3:8b"         # 8GB VRAM card — 14B (~9GB) doesn't fit; upgrade when hardware changes
   ollama_url: "http://localhost:11434"
   context_window: 8192            # bump when you upgrade hardware
   think: false                    # disable Qwen3 reasoning preamble for speed
+  keep_alive: "10m"                # unload from VRAM 2 min after idle — critical since
+                                   # this PC is also used for gaming; without this the
+                                   # model sits resident in VRAM permanently
 
   fallback:
     provider: "anthropic"
@@ -22,7 +29,7 @@ wake_word:
 stt:
   engine: "faster-whisper"
   model_size: "small.en"          # tiny.en/base.en/small.en/medium.en — bigger = slower, more accurate
-  device: "cuda"                  # cuda | cpu
+  device: "cpu"                  # cuda | cpu
 
 tts:
   engine: "piper"

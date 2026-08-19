@@ -1,17 +1,17 @@
-# Core loop dependencies (Linux)
 pyyaml
 requests
+anthropic
+
+# Server
+fastapi
+uvicorn[standard]
+
+# PC agent
+websockets
+
+# Voice client (run only where a mic/speaker exist — typically the server's own PC)
 sounddevice
 numpy
-
-# STT
 faster-whisper
-
-# Wake word
 openwakeword
-
-# TTS (local, free)
 piper-tts
-
-# Claude fallback
-anthropic
